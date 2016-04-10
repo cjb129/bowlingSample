@@ -6,109 +6,84 @@ using System.Threading.Tasks;
 
 namespace bowlingScore
 {
+
+    public class Roll
+    {
+        public bool strike = false;
+        public bool spare = false;
+        public int score2 = 0;
+        public int score1 = 0;
+        public int total = 0;
+    }
+
     class Game
     {
 
         int score = 0;
         public int rolls = 0;
+        bool firstRoll = true;
 
-        int current = 0;
-        int prev1 = 0;
-        int prev2 = 0;
-
-
-        public int[] frames = new int[26];
-
-        public void Roll(int pins)
-        {
-
-            //bool isSpare = false;
-            //bool isStrike = false;
-
-            //if (rolls >= 2)
-            //{
-            //    prev1 = frames[rolls - 2];
-            //    prev2 = frames[rolls - 1];
-            //}
-
-            //if (prev1 == 10) isStrike = true;
-
-            //if (prev1 + prev2 == 10)
-            //{
-            //    isSpare = true;
-            //    Console.WriteLine("ahh");
-            //}
-
-            //if (isSpare)
-            //{
-            //    score += pins;
-            //}
-
-            //else if (isStrike)
-            //{
-            //    Console.WriteLine("foo");
-            //    score += 1 + prev2 + pins;
-            //}
-
-            
-            //Console.WriteLine(score);
-
-
-            if (pins == -1) return;
-            score += pins;
-
-            
-
-        }
+        List<Roll> bowls = new List<Roll>();
 
         public int Score()
         {
-            for (int i = 0; i < 20; i += 2)
+            //add two emptys on the end so to avoid going out of range
+            bowls.Add(new bowlingScore.Roll());
+            bowls.Add(new bowlingScore.Roll());
+
+            for (int i = 0; i < bowls.Count; i++)
             {
-                int first = frames[i];
-                int second = frames[i + 1];
-
-                //spare
-                if (first + second == 10 && i < 18)
+                if (bowls[i].strike)
                 {
-                    if (frames[i + 2] != -1) score += frames[i + 2];
-                    //next frame is strike
-                    else if (frames[i + 2] == -1) score += frames[i + 3];
-                    else Console.WriteLine("notstrike?");
-                }
-
-                //strike
-                if (first == -1)
-                {
-                    //next frame not a strike
-                    if (frames[i + 2] != -1)
-                        score += frames[i + 2] + frames[i + 3];
+                    if(bowls[i+1].strike)
+                    {
+                        score += bowls[i + 1].score1 + bowls[i + 2].score1;
+                    }
                     else
                     {
-                        if (frames[i + 4] != -1)
-                            score += frames[i + 3] + frames[i + 4];
-                        //next 2 frames are strikes
-                        else
-                            score += frames[i + 3] + frames[i + 5];
+                        score += bowls[i + 1].score1 + bowls[i + 1].score2;
                     }
                 }
+                else if(bowls[i].spare)
+                {
+                    score += bowls[i + 1].score1;
+                }
 
-                ////strikes on last frame
-                //if (first == 10)
-                //{
-                //    Console.WriteLine("first==10");
-                //    score += frames[i + 1] + frames[i + 2];
-                //}
-                //if (second == 10 && first==10)
-                //{
-                //    Console.WriteLine("second==10");
-                //    score += frames[i + 2];
-                //}
-                Console.WriteLine(score);
+                //Console.Write("{0},{1} ", bowls[i].score1, bowls[i].score2);
+                score += bowls[i].score1 + bowls[i].score2;
+                bowls[i].total += score;
             }
 
+            for (int i=0; i < 10;i++) Console.Write("{0} ", bowls[i].total);
             return score;
         }
+
+        public void Roll(int pins)
+        {
+            if (firstRoll)
+            {
+                Roll current = new bowlingScore.Roll();
+                firstRoll = false;
+                current.score1 = pins;
+                if (pins == 10)
+                {
+                    current.strike = true;
+                    firstRoll = true;
+                }
+                bowls.Add(current);
+            }
+            else
+            {
+                firstRoll = true;
+                Roll current = bowls[bowls.Count-1];
+                current.score2 = pins;
+                if(current.score1+current.score2==10 && !current.strike)
+                {
+                    current.spare = true;
+                }
+            }
+        }
+
 
     }
 
@@ -117,38 +92,16 @@ namespace bowlingScore
         static void Main(string[] args)
         {
             Game play = new Game();
-
             String input = Console.ReadLine();
             String[] inputSplit = input.Split();
-
-            int f = 0;
 
             for (int i = 0; i < inputSplit.Length; i++)
             {
                 int r = Convert.ToInt32(inputSplit[i]);
-                //Console.WriteLine(r);
-                if (r == 10)
-                {
-                    if (f < 18)
-                    {
-                        //placeholder for strikes
-                        play.frames[f] = -1;
-                        f++;
-                    }
-                }
-                //Console.WriteLine(r);
-                play.frames[f] = r;
-                f++;
+                play.Roll(r);
             }
 
-            while (play.rolls < 21)
-            {
-                Console.WriteLine(play.frames[play.rolls]);
-                play.Roll(play.frames[play.rolls]);
-                play.rolls++;
-            }
-
-            Console.Write(play.Score());
+            play.Score();
         }
     }
 }
