@@ -10,7 +10,7 @@ for t in $tsts;do
 	if [ $ret = 0 ]; then
 		echo "PASSED"
 	else
-		echo "FAILES"
+		echo "FAILED"
 	fi
 	(( s += 1 ))	
 done
