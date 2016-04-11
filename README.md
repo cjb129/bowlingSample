@@ -10,17 +10,17 @@ Expected input:
 Testing:
 	If the executable generated is called bowl.exe,
 
-	```shell
-	./bowl.exe < tests/tst1.txt
-	```
+```shell
+./bowl.exe < tests/tst1.txt
+```
 
-	will run the program with sample test input.
+will run the program with sample test input.
 
-	```shell
-	./test.exe
-	```
+```shell
+./test.exe
+```
 
-	will run all test cases and compare them with test solutions.
+will run all test cases and compare them with test solutions.
 
 This program was developed using Visual Studio 2015.
 The test script was written using Git Bash.
